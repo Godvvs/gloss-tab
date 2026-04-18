@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Gloss Tab - 为 AI 对话做笺注的效率工具</title>
+<meta name="description" content="Chrome / Edge 浏览器扩展，为 ChatGPT / Claude / Gemini 等 AI 对话页面提供时间线导航、全文搜索和复制增强。免费、开源、数据全部本地存储。">
+<link rel="icon" type="image/png" href="icon-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --canvas:#FFF5E6;--surface:#FFFFFF;--surface-hover:#FFF0D9;--overlay:#FFE8C8;
+  --border:#E8D4B6;--border-muted:rgba(232,212,182,0.6);
+  --t1:#4A3520;--t2:#8A7258;--t3:#B89A74;
+  --accent:#D4652A;--accent-hover:#C4551E;--accent-muted:rgba(212,101,42,0.08);
+  --green:#2D6A4F;--green-muted:rgba(45,106,79,0.08);
+  --warn:#C97B1A;--mood:#E85D7C;
+  --sep:rgba(74,53,32,0.1);
+  --sh-sm:0 1px 3px rgba(74,53,32,0.06);--sh-md:0 4px 16px rgba(74,53,32,0.08);--sh-lg:0 8px 32px rgba(74,53,32,0.12);
+  --mat:rgba(255,245,230,0.88);--mat-b:rgba(232,212,182,0.5);
+  --glass:rgba(255,245,230,0.95);--glass-b:rgba(232,212,182,0.8);
+  --code-bg:#FFFAF0;--code-border:#EFDFC0;
+  --fd:'Fraunces','Georgia',serif;--fs:'Quicksand',-apple-system,'PingFang SC','Noto Sans SC',sans-serif;--fm:'Menlo','Monaco','Consolas',monospace;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-pill:24px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --canvas:#1A1510;--surface:#242018;--surface-hover:#2E2820;--overlay:#38302A;
+  --border:#4A3D30;--border-muted:rgba(74,61,48,0.6);
+  --t1:#F0E6D4;--t2:#B89A74;--t3:#7A6550;
+  --accent:#E8853D;--accent-hover:#D4752D;--accent-muted:rgba(232,133,61,0.1);
+  --green:#4CAF7A;--green-muted:rgba(76,175,122,0.1);--warn:#E0A030;
+  --sep:rgba(240,230,212,0.08);
+  --sh-sm:0 1px 3px rgba(0,0,0,0.15);--sh-md:0 4px 16px rgba(0,0,0,0.2);--sh-lg:0 8px 32px rgba(0,0,0,0.25);
+  --mat:rgba(26,21,16,0.88);--mat-b:rgba(74,61,48,0.5);
+  --glass:rgba(36,32,24,0.95);--glass-b:rgba(74,61,48,0.8);
+  --code-bg:#2E2820;--code-border:#4A3D30;
+}}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--canvas);color:var(--t1);font-family:var(--fs);font-size:16px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent-hover)}
+.ctn{max-width:960px;margin:0 auto;padding:0 24px}
+img.logo{width:36px;height:36px;border-radius:9px;box-shadow:0 2px 8px rgba(74,53,32,0.15)}
+.nav{position:sticky;top:0;z-index:100;background:var(--mat);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--mat-b)}
+.nav-in{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:56px;gap:12px}
+.nav-brand{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-style:italic;font-weight:700;font-size:22px;color:var(--t1);letter-spacing:-0.3px}
+.nav-brand small{font-family:var(--fs);font-style:normal;font-size:11px;font-weight:600;color:var(--t3);letter-spacing:0.5px}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:20px}
+.nav-r a.link{color:var(--t2);font-size:13px;font-weight:600;transition:color .1s}.nav-r a.link:hover{color:var(--accent)}
+.nav-r .gh{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;color:var(--t3);transition:color .1s}.nav-r .gh:hover{color:var(--t1)}
+.btn-nav{padding:7px 18px;border-radius:var(--r-pill);background:var(--accent);color:#fff!important;font-family:var(--fs);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:5px;border:none;cursor:pointer;transition:background .1s;text-shadow:0 1px 1px rgba(0,0,0,0.12)}.btn-nav:hover{background:var(--accent-hover);color:#fff!important}.btn-nav svg{width:14px;height:14px}
+.hero{padding:72px 0 48px;text-align:center}
+.hero-tags{display:flex;justify-content:center;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:var(--r-pill);font-size:12px;font-weight:700;letter-spacing:0.5px}
+.tag.ver{background:var(--accent-muted);color:var(--accent);border:1px solid var(--border-muted)}
+.tag.free{background:var(--green-muted);color:var(--green);border:1px solid var(--border-muted)}
+.tag.local{background:var(--surface);color:var(--t2);border:1px solid var(--border-muted)}
+.hero h1{font-family:var(--fd);font-style:italic;font-size:44px;font-weight:700;line-height:1.2;margin-bottom:16px}.hero h1 .accent{color:var(--accent)}
+.hero .pain{font-size:17px;color:var(--t2);max-width:540px;margin:0 auto 6px;line-height:1.7}
+.hero .pain-en{font-size:14px;color:var(--t3);font-style:italic;max-width:540px;margin:0 auto 28px}
+.hero-btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn-p{display:inline-flex;align-items:center;gap:7px;padding:12px 26px;border-radius:var(--r-pill);background:var(--accent);color:#fff!important;font-family:var(--fs);font-weight:700;font-size:15px;border:none;cursor:pointer;transition:all .2s;box-shadow:var(--sh-sm);text-shadow:0 1px 2px rgba(0,0,0,0.12)}.btn-p:hover{background:var(--accent-hover);color:#fff!important;box-shadow:var(--sh-md);transform:translateY(-1px)}
+.btn-s{display:inline-flex;align-items:center;gap:7px;padding:12px 26px;border-radius:var(--r-pill);background:var(--surface);color:var(--t1);font-family:var(--fs);font-weight:700;font-size:15px;border:1px solid var(--border);cursor:pointer;transition:all .2s}.btn-s:hover{border-color:var(--accent);color:var(--accent);background:var(--surface-hover)}
+.btn-p svg,.btn-s svg{width:16px;height:16px;flex-shrink:0}
+.plats{padding:24px 0 40px;text-align:center;border-bottom:1px solid var(--sep)}
+.plats-label{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
+.plat-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.plat-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border-muted);font-size:12px;font-weight:600;color:var(--t2)}
+.plat-chip .d{width:5px;height:5px;border-radius:50%}.plat-chip .d.i{background:var(--green)}.plat-chip .d.c{background:var(--accent)}
+.pet-show{padding:64px 0;text-align:center}
+.pet-show h2{font-family:var(--fd);font-style:italic;font-size:30px;font-weight:700;margin-bottom:6px}
+.pet-show .sub{font-size:15px;color:var(--t2);margin-bottom:4px}
+.pet-show .sub-en{font-size:13px;color:var(--t3);font-style:italic;margin-bottom:32px}
+.pet-row{display:flex;justify-content:center;align-items:flex-end;gap:32px;flex-wrap:wrap}
+.pet-card{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pet-card svg{filter:drop-shadow(0 6px 12px rgba(58,40,20,0.15))}
+.pet-card .name{font-family:var(--fd);font-style:italic;font-size:14px;font-weight:700}
+.pet-card .species{font-family:var(--fm);font-size:9px;color:var(--t3);letter-spacing:1px}
+.pet-bubble{display:flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 6px;background:var(--glass);border:2px solid #3A2814;font-family:var(--fm);font-size:14px;font-weight:700;color:var(--mood);position:relative}.pet-bubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #3A2814}
+.pet-desc{max-width:560px;margin:32px auto 0;font-size:14px;color:var(--t2);line-height:1.7}
+.pet-desc-en{max-width:560px;margin:6px auto 0;font-size:12px;color:var(--t3);font-style:italic}
+.how{padding:64px 0;border-top:1px solid var(--sep)}
+.how h2{font-family:var(--fd);font-style:italic;font-size:28px;font-weight:700;text-align:center;margin-bottom:8px}
+.how .sub{text-align:center;font-size:14px;color:var(--t3);font-style:italic;margin-bottom:40px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step{text-align:center;padding:28px 20px;background:var(--surface);border:1px solid var(--border-muted);border-radius:var(--r-lg);transition:all .2s}.step:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.step-num{font-family:var(--fd);font-style:italic;font-size:32px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.step h3{font-family:var(--fd);font-style:italic;font-size:18px;font-weight:700;margin-bottom:6px}
+.step p{font-size:13px;color:var(--t2);line-height:1.6}.step .en{font-size:11px;color:var(--t3);font-style:italic;margin-top:6px}
+.feat{padding:64px 0;border-top:1px solid var(--sep)}
+.feat-row{display:flex;align-items:center;gap:48px}.feat-row.rev{flex-direction:row-reverse}
+.feat-txt{flex:1}
+.feat-txt .label{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:6px;margin-bottom:10px}
+.feat-txt .label.o{background:var(--accent-muted);color:var(--accent)}.feat-txt .label.g{background:var(--green-muted);color:var(--green)}
+.feat-txt h2{font-family:var(--fd);font-style:italic;font-size:26px;font-weight:700;margin-bottom:10px;line-height:1.3}
+.feat-txt h2 .en{font-size:16px;font-weight:600;color:var(--t3);display:block;margin-top:2px}
+.feat-txt p{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:6px}
+.feat-txt .enp{font-size:12px;color:var(--t3);font-style:italic;margin-bottom:6px}
+.feat-txt .detail{font-size:12px;color:var(--t3);line-height:1.5}
+.feat-demo{flex:0 0 400px;position:relative}
+.kbd{display:inline-block;padding:2px 6px;background:var(--overlay);border:1px solid var(--border);border-radius:4px;font-family:var(--fm);font-size:10px;color:var(--accent);font-weight:600;margin:0 1px}
+.demo-box{background:var(--surface);border:1px solid var(--border-muted);border-radius:var(--r-lg);padding:20px 48px 20px 20px;position:relative;box-shadow:var(--sh-md);min-height:260px;overflow:visible}
+.d-chat{display:flex;flex-direction:column;gap:12px}
+.d-msg{display:flex;gap:8px;align-items:flex-start}.d-msg.u{flex-direction:row-reverse}
+.d-av{width:24px;height:24px;border-radius:50%;background:var(--overlay);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);font-family:var(--fd);font-style:italic}
+.d-msg.u .d-av{background:var(--accent);color:var(--canvas)}
+.d-bb{background:var(--canvas);border:1px solid var(--border-muted);border-radius:8px;padding:8px 12px;font-size:12px;line-height:1.5;max-width:240px}
+.d-msg.u .d-bb{background:var(--accent-muted);border-color:transparent}
+.d-bb strong{color:var(--accent)}
+ace-mark{background:rgba(201,123,26,0.28);padding:1px 2px;border-radius:2px}ace-mark.active{background:var(--warn);color:var(--canvas);padding:1px 3px;border-radius:3px}
+.d-rail{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center}
+.d-rail .dot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--t3);background:transparent;position:relative}
+.d-rail .dot.cur{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 3px var(--accent-muted)}
+.d-rail .dot.hov{border-color:var(--accent);transform:scale(1.3)}
+.d-rail .dot.match{border-color:var(--warn);background:var(--warn);box-shadow:0 0 0 3px rgba(201,123,26,0.18)}
+.d-rail .seg{width:1px;height:14px;background:var(--border-muted)}
+.d-rail .divider{width:10px;height:1px;background:var(--border-muted);margin-top:3px}
+.d-rail .sbtn{width:20px;height:20px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--t2);margin-top:5px;cursor:pointer}.d-rail .sbtn svg{width:10px;height:10px}
+.d-rail .sbtn.active{background:var(--accent);border-color:var(--accent);color:var(--canvas)}
+.dot-pv{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--glass);backdrop-filter:blur(14px);border:1px solid var(--glass-b);border-radius:7px;padding:5px 9px;min-width:130px;max-width:170px;box-shadow:var(--sh-md);z-index:30}
+.dot-pv::after{content:'';position:absolute;right:-3px;top:50%;transform:translateY(-50%) rotate(45deg);width:5px;height:5px;background:var(--glass);border-right:1px solid var(--glass-b);border-top:1px solid var(--glass-b)}
+.dot-pv .rnd{font-family:var(--fd);font-size:8px;font-weight:600;font-style:italic;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:2px}
+.dot-pv .q{font-size:10px;font-weight:600;color:var(--t1);line-height:1.4}
+.si{position:absolute;right:38px;bottom:10px;width:200px;background:var(--glass);backdrop-filter:blur(14px);border:1.5px solid var(--glass-b);border-radius:10px;padding:5px 7px;box-shadow:var(--sh-md);z-index:15}
+.si-top{display:flex;align-items:center;gap:4px;height:20px}.si-top svg{width:10px;height:10px;color:var(--t3);flex-shrink:0}
+.si-top input{flex:1;background:none;border:none;outline:none;font-family:inherit;font-size:11px;font-weight:500;color:var(--t1)}
+.si-bot{display:flex;align-items:center;gap:3px;height:20px;border-top:1px solid var(--border-muted);padding-top:3px;margin-top:2px}
+.si-bot .cnt{flex:1;text-align:center;font-size:9px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.si-bot button{width:18px;height:18px;border-radius:4px;border:none;background:transparent;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center}.si-bot button svg{width:10px;height:10px}
+.demo-copy{background:var(--surface);border:1px solid var(--border-muted);border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh-md)}
+.dc-formula{position:relative;background:var(--code-bg);border:1px solid var(--code-border);border-radius:7px;margin:10px 0;padding:12px 16px;text-align:center;font-family:var(--fd);font-size:15px;font-style:italic}
+.dc-code{position:relative;background:var(--code-bg);border:1px solid var(--code-border);border-radius:7px;margin:10px 0;overflow:visible}
+.dc-code pre{padding:10px 12px;margin:0;font-family:var(--fm);font-size:11px;line-height:1.5;white-space:pre;overflow:hidden}
+.dc-code .kw{color:#7A1AB8;font-weight:600}.dc-code .fn{color:#0066AA}.dc-code .str{color:var(--green)}.dc-code .num{color:var(--accent)}.dc-code .cm{color:var(--t3);font-style:italic}
+.ace-s{position:absolute;bottom:3px;right:3px;display:flex;gap:2px;padding:2px;background:var(--glass);border:1px solid var(--glass-b);border-radius:12px;backdrop-filter:blur(8px);z-index:10}
+.ace-b{width:18px;height:18px;border-radius:50%;border:1px solid var(--glass-b);background:var(--glass);color:var(--t3);display:flex;align-items:center;justify-content:center;flex-shrink:0}.ace-b svg{width:10px;height:10px}
+.ace-b.hi{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ace-p{position:absolute;right:-40px;bottom:0;display:grid;grid-template-columns:18px 18px;grid-template-rows:18px 18px;gap:2px}
+.phi{padding:64px 0;border-top:1px solid var(--sep)}
+.phi h2{font-family:var(--fd);font-style:italic;font-size:28px;font-weight:700;text-align:center;margin-bottom:6px}
+.phi .sub{text-align:center;font-size:14px;color:var(--t2);margin-bottom:8px}
+.phi .sub-en{text-align:center;font-size:12px;color:var(--t3);font-style:italic;margin-bottom:36px}
+.phi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.phi-item{text-align:center;padding:20px 16px}
+.phi-num{font-family:var(--fd);font-style:italic;font-size:32px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.phi-item h3{font-family:var(--fd);font-style:italic;font-size:16px;font-weight:700;margin-bottom:6px}
+.phi-item p{font-size:13px;color:var(--t2);line-height:1.5}.phi-item .en{font-size:11px;color:var(--t3);font-style:italic;margin-top:4px}
+.cta{padding:72px 0;text-align:center}
+.cta-card{background:linear-gradient(135deg,var(--accent-muted) 0%,var(--green-muted) 100%);border:1px solid var(--border-muted);border-radius:var(--r-lg);padding:56px 40px}
+.cta h2{font-family:var(--fd);font-style:italic;font-size:28px;font-weight:700;margin-bottom:10px}
+.cta p{font-size:15px;color:var(--t2);margin-bottom:28px}
+.footer{padding:28px 0;border-top:1px solid var(--sep)}
+.foot-in{display:flex;align-items:center;justify-content:space-between;max-width:960px;margin:0 auto;padding:0 24px}
+.foot-brand{font-family:var(--fd);font-style:italic;font-size:13px;font-weight:600;color:var(--t3)}
+.foot-links{display:flex;gap:18px}.foot-links a{font-size:12px;color:var(--t3)}.foot-links a:hover{color:var(--accent)}
+@media(max-width:768px){
+  .hero h1{font-size:32px}.steps{grid-template-columns:1fr}
+  .feat-row,.feat-row.rev{flex-direction:column}.feat-demo{flex:none;width:100%;max-width:400px}
+  .phi-grid{grid-template-columns:repeat(2,1fr)}.pet-row{gap:20px}
+  .nav-r a.link{display:none}.foot-in{flex-direction:column;gap:10px}
+}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-in">
+  <a href="/" class="nav-brand"><img class="logo" src="icon-128.png" alt=""><span>AI Gloss Tab</span><small>笺注</small></a>
+  <div class="nav-r">
+    <a href="#features" class="link">Features</a>
+    <a href="#philosophy" class="link">Philosophy</a>
+    <a href="https://github.com/Godvvs/gloss-tab" target="_blank" class="gh" title="GitHub"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a>
+    <a href="#install" class="btn-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Install</a>
+  </div>
+</div></nav>
+<section class="hero"><div class="ctn">
+  <div class="hero-tags"><span class="tag ver">v0.1.0</span><span class="tag free">Free &amp; Open Source</span><span class="tag local"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Local Only</span></div>
+  <h1>AI 对话越来越长<br>关键信息越滚越<span class="accent">远</span></h1>
+  <p class="pain">时间线导航、全文搜索、智能复制 &mdash; 让每一轮对话都可追溯、可检索、可复用。</p>
+  <p class="pain-en">Timeline, search, smart copy &mdash; every insight traceable, searchable, reusable.</p>
+  <div class="hero-btns" id="install">
+    <a href="#" class="btn-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>Chrome Web Store</a>
+    <a href="#" class="btn-s"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 12h8l4-8"/><path d="M12 12l4 8"/></svg>Edge Add-ons</a>
+  </div>
+</div></section>
+<section class="plats"><div class="ctn">
+  <div class="plats-label">Works on 9 AI platforms</div>
+  <div class="plat-row">
+    <span class="plat-chip"><span class="d i"></span>ChatGPT</span><span class="plat-chip"><span class="d i"></span>Claude</span><span class="plat-chip"><span class="d i"></span>Gemini</span>
+    <span class="plat-chip"><span class="d c"></span>DeepSeek</span><span class="plat-chip"><span class="d c"></span>Kimi</span><span class="plat-chip"><span class="d c"></span>通义千问</span>
+    <span class="plat-chip"><span class="d c"></span>豆包</span><span class="plat-chip"><span class="d c"></span>腾讯元宝</span><span class="plat-chip"><span class="d c"></span>百度一言</span>
+  </div>
+</div></section>
+<section class="pet-show"><div class="ctn">
+  <h2>每次对话，都有同伴</h2>
+  <p class="sub">A companion for every conversation</p>
+  <div class="pet-row">
+    <div class="pet-card"><svg width="64" height="64" viewBox="0 0 12 12" shape-rendering="crispEdges"><rect x="2" y="3" width="8" height="7" fill="#D4902A" stroke="#3A2814" stroke-width="0.3"/><rect x="3" y="7" width="6" height="2" fill="#F4D59C"/><rect x="3" y="5" width="2" height="2" fill="#FFF" stroke="#3A2814" stroke-width="0.25"/><rect x="7" y="5" width="2" height="2" fill="#FFF" stroke="#3A2814" stroke-width="0.25"/><rect x="3.5" y="5.5" width="1" height="1" fill="#1A1510"/><rect x="7.5" y="5.5" width="1" height="1" fill="#1A1510"/><rect x="5.5" y="7.5" width="1" height=".8" fill="#3A2814"/></svg><div class="species">IDLE</div></div>
+    <div class="pet-card"><svg width="64" height="64" viewBox="0 0 12 12" shape-rendering="crispEdges"><rect x="2" y="3" width="8" height="7" fill="#D4902A" stroke="#3A2814" stroke-width="0.3"/><rect x="3" y="7" width="6" height="2" fill="#F4D59C"/><rect x="3" y="5" width="2" height="2" fill="#FFF" stroke="#3A2814" stroke-width="0.25"/><rect x="7" y="5" width="2" height="2" fill="#FFF" stroke="#3A2814" stroke-width="0.25"/><rect x="4" y="5.5" width="1" height="1" fill="#1A1510"/><rect x="8" y="5.5" width="1" height="1" fill="#1A1510"/><rect x="5.5" y="7.5" width="1" height=".8" fill="#3A2814"/></svg><div class="species">WATCHING</div></div>
+    <div class="pet-card"><div class="pet-bubble">♥</div><svg width="100" height="100" viewBox="0 0 12 12" shape-rendering="crispEdges"><rect x="1" y="1" width="2" height="2" fill="#D4652A" stroke="#3A2814" stroke-width="0.3"/><rect x="9" y="1" width="2" height="2" fill="#D4652A" stroke="#3A2814" stroke-width="0.3"/><rect x="1.5" y="1.5" width="1" height="1" fill="#3A2814"/><rect x="9.5" y="1.5" width="1" height="1" fill="#3A2814"/><rect x="2" y="3" width="8" height="7" fill="#D4902A" stroke="#3A2814" stroke-width="0.3"/><rect x="3" y="7" width="6" height="2" fill="#F4D59C"/><path d="M3 6 Q4 5 5 6" stroke="#1A1510" stroke-width="0.4" fill="none" stroke-linecap="round"/><path d="M7 6 Q8 5 9 6" stroke="#1A1510" stroke-width="0.4" fill="none" stroke-linecap="round"/><rect x="5.5" y="7.5" width="1" height=".8" fill="#3A2814"/><rect x="5" y="8.3" width="2" height=".5" fill="#3A2814"/><rect x="2" y="7" width="1" height="1" fill="#E85D7C" opacity="0.55"/><rect x="9" y="7" width="1" height="1" fill="#E85D7C" opacity="0.55"/></svg><div class="name">MILO</div><div class="species">EMBER FOX · TIER II</div></div>
+    <div class="pet-card"><svg width="64" height="64" viewBox="0 0 12 12" shape-rendering="crispEdges"><rect x="2" y="3" width="8" height="7" fill="#D4902A" stroke="#3A2814" stroke-width="0.3"/><rect x="3" y="7" width="6" height="2" fill="#F4D59C"/><rect x="3" y="5" width="2" height="2" fill="#FFF" stroke="#3A2814" stroke-width="0.25"/><rect x="7" y="5" width="2" height="2" fill="#FFF" stroke="#3A2814" stroke-width="0.25"/><rect x="3.75" y="5.45" width=".5" height=".5" fill="#1A1510"/><rect x="7.75" y="5.45" width=".5" height=".5" fill="#1A1510"/><rect x="5.5" y="7.5" width="1" height=".8" fill="#3A2814"/></svg><div class="species">TYPING</div></div>
+    <div class="pet-card"><svg width="64" height="64" viewBox="0 0 12 12" shape-rendering="crispEdges"><rect x="2" y="3" width="8" height="7" fill="#D4902A" stroke="#3A2814" stroke-width="0.3" opacity=".85"/><rect x="3" y="7" width="6" height="2" fill="#F4D59C"/><rect x="3" y="5.8" width="2" height=".35" fill="#1A1510"/><rect x="7" y="5.8" width="2" height=".35" fill="#1A1510"/><rect x="5.5" y="7.5" width="1" height=".8" fill="#3A2814"/></svg><div class="species">SLEEP</div></div>
+  </div>
+  <p class="pet-desc">25 种像素宠物，感知你的对话节奏 &mdash; 输入时好奇张望，AI 回复时开心眯眼，长时间不动就打盹。纯情绪陪伴，不打扰工作流。</p>
+  <p class="pet-desc-en">25 pixel pets that sense your rhythm. Curious when you type, happy when AI replies, napping when idle.</p>
+</div></section>
+<section class="how" id="features"><div class="ctn">
+  <h2>三步开始</h2><p class="sub">How it works</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><h3>安装扩展</h3><p>Chrome / Edge 商店一键安装。零配置，无需账号，打开 AI 对话页面即自动激活。</p><p class="en">One click install. Zero config, no account. Auto-activates on AI chat pages.</p></div>
+    <div class="step"><div class="step-num">02</div><h3>对话中直接使用</h3><p>右侧时间线自动生成，复制按钮就近浮现在代码块、公式、表格旁。一切在对话页面内完成。</p><p class="en">Timeline auto-generated. Copy buttons appear next to code, formulas, tables.</p></div>
+    <div class="step"><div class="step-num">03</div><h3>搜索、跳转、复用</h3><p>Ctrl+Shift+F 全文搜索，命中高亮。一键复制保留格式，粘贴到 Notion / Word / Obsidian 即用。</p><p class="en">Full-text search with highlights. Copy preserves formatting for Notion, Word, Obsidian.</p></div>
+  </div>
+</div></section>
+<section class="feat"><div class="ctn"><div class="feat-row">
+  <div class="feat-txt"><span class="label o">TIMELINE</span><h2>右侧时间线<span class="en">Navigate Long Conversations</span></h2><p>每个圆点对应一轮提问。悬停预览摘要，点击直接跳转。焦橙实心圆点追踪你的阅读位置。</p><p class="enp">Each dot marks a question. Hover to preview, click to jump. Orange dot tracks your viewport.</p></div>
+  <div class="feat-demo"><div class="demo-box"><div class="d-chat"><div class="d-msg u"><div class="d-av">你</div><div class="d-bb">Self-attention 和 Cross-attention 的区别？</div></div><div class="d-msg"><div class="d-av">AI</div><div class="d-bb">核心差异在 <strong>Q/K/V</strong> 的来源：Self-attention 均来自同一序列...</div></div><div class="d-msg u"><div class="d-av">你</div><div class="d-bb">Multi-Head 在这之上是什么角色？</div></div><div class="d-msg"><div class="d-av">AI</div><div class="d-bb">把 Q/K/V 切成 h 份并行计算，让模型在不同子空间学习不同注意力模式。</div></div></div><div class="d-rail"><div class="dot"></div><div class="seg"></div><div class="dot hov" style="position:relative"><div class="dot-pv"><div class="rnd">Turn 2</div><div class="q">Self-attention 和 Cross-attention 的区别？</div></div></div><div class="seg"></div><div class="dot cur"></div><div class="seg"></div><div class="dot"></div><div class="seg"></div><div class="dot"></div><div class="divider"></div><button class="sbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button></div></div></div>
+</div></div></section>
+<section class="feat"><div class="ctn"><div class="feat-row rev">
+  <div class="feat-txt"><span class="label g">SEARCH</span><h2>全文搜索，命中即高亮<span class="en">Full-Text Search with Live Highlights</span></h2><p><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">F</span> 呼出搜索栏。关键词实时高亮，时间线圆点同步变黄。</p><p class="enp">Keywords highlighted in real time. Timeline dots turn amber to show matches per turn.</p><p class="detail">大小写 / 全词 / 正则。Case-sensitive, whole word, regex.</p></div>
+  <div class="feat-demo"><div class="demo-box"><div class="d-chat"><div class="d-msg"><div class="d-av">AI</div><div class="d-bb"><ace-mark>Attention</ace-mark> 机制有两个变体：Self-<ace-mark class="active">attention</ace-mark> 和 Cross-<ace-mark>attention</ace-mark>。</div></div><div class="d-msg u"><div class="d-av">你</div><div class="d-bb">Multi-Head <ace-mark>attention</ace-mark> 是什么角色？</div></div><div class="d-msg"><div class="d-av">AI</div><div class="d-bb">Multi-Head <ace-mark>attention</ace-mark> 把 Q/K/V 切成 h 份并行计算。</div></div></div><div class="d-rail"><div class="dot match"></div><div class="seg"></div><div class="dot cur"></div><div class="seg"></div><div class="dot match"></div><div class="seg"></div><div class="dot"></div><div class="divider"></div><button class="sbtn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button><div class="si"><div class="si-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input value="attention" readonly></div><div class="si-bot"><span class="cnt">2 / 5</span><button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="18 15 12 9 6 15"/></svg></button><button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button></div></div></div></div></div>
+</div></div></section>
+<section class="feat"><div class="ctn"><div class="feat-row">
+  <div class="feat-txt"><span class="label o">COPY</span><h2>5 类复制增强<span class="en">Smart Copy for 5 Content Types</span></h2><p>消息 · 代码 · 表格 · 列表 · 公式，每类独立胶囊按钮。代码保留高亮，公式复制 LaTeX。</p><p class="enp">Message, code, table, list, formula. Syntax-highlighted code, LaTeX formulas.</p><p class="detail">粘贴到 Word / Notion / Obsidian 格式完整保留。Paste-ready for Word, Notion, Obsidian.</p></div>
+  <div class="feat-demo"><div class="demo-copy"><div style="position:relative;margin-right:44px"><div class="dc-formula"><span style="font-style:italic">Attention</span>(Q, K, V) = softmax(QK<sup>T</sup> / &#8730;d<sub>k</sub>) V<div class="ace-s"><div class="ace-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></div><div class="ace-b hi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div></div></div><div class="dc-code"><pre><code><span class="kw">def</span> <span class="fn">attention</span>(Q, K, V):
+    d_k = Q.size(-<span class="num">1</span>)
+    scores = Q @ K.transpose(-<span class="num">2</span>, -<span class="num">1</span>)
+    <span class="kw">return</span> F.softmax(scores / math.sqrt(d_k)) @ V</code></pre><div class="ace-s"><div class="ace-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><div class="ace-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 18V6l5 6 5-6v12"/></svg></div></div></div><div class="ace-p"><div class="ace-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><div class="ace-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 18V6l5 6 5-6v12"/></svg></div><div class="ace-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="ace-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div></div></div></div></div>
+</div></div></section>
+<section class="phi" id="philosophy"><div class="ctn">
+  <h2>设计理念 · Design Philosophy</h2><p class="sub">功能就近，按需浮现，不用时隐形</p><p class="sub-en">Close to context, appear on demand, invisible when idle</p>
+  <div class="phi-grid">
+    <div class="phi-item"><div class="phi-num">01</div><h3>极简分层</h3><p>常驻 UI 只有一条细线。渐进式披露。</p><p class="en">Progressive disclosure. Never steal reading space.</p></div>
+    <div class="phi-item"><div class="phi-num">02</div><h3>不打扰</h3><p>默认半透明，hover 才浮现。</p><p class="en">Transparent by default. You're talking to AI, not fighting toolbars.</p></div>
+    <div class="phi-item"><div class="phi-num">03</div><h3>功能就近</h3><p>复制在代码旁，搜索在时间线底部。</p><p class="en">Copy next to code. Search next to timeline.</p></div>
+    <div class="phi-item"><div class="phi-num" style="color:var(--green)">04</div><h3>数据在你手里</h3><p>无后端、无账号、无上传。开源可审计。</p><p class="en">No server, no account, no upload. Open source.</p></div>
+  </div>
+</div></section>
+<section class="cta"><div class="ctn"><div class="cta-card">
+  <h2>开始使用 · Get Started</h2><p>免费、开源、零配置。Free, open source, zero config.</p>
+  <div class="hero-btns">
+    <a href="#" class="btn-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>Chrome Web Store</a>
+    <a href="#" class="btn-s"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 12h8l4-8"/><path d="M12 12l4 8"/></svg>Edge Add-ons</a>
+  </div>
+</div></div></section>
+<footer class="footer"><div class="foot-in">
+  <span class="foot-brand">AI Gloss Tab · 笺注</span>
+  <div class="foot-links"><a href="https://github.com/Godvvs/gloss-tab" target="_blank">GitHub</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+</div></footer>
+</body>
+</html>

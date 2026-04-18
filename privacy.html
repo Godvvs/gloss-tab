@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy - AI Gloss Tab</title>
+<link rel="icon" type="image/png" href="icon-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--canvas:#FFF5E6;--surface:#FFFFFF;--t1:#4A3520;--t2:#8A7258;--t3:#B89A74;--accent:#D4652A;--green:#2D6A4F;--border:#E8D4B6;--sep:rgba(74,53,32,0.1);--fd:'Fraunces','Georgia',serif;--fs:'Quicksand',-apple-system,'PingFang SC',sans-serif;--fm:'Menlo','Monaco','Consolas',monospace}
+@media(prefers-color-scheme:dark){:root{--canvas:#1A1510;--surface:#242018;--t1:#F0E6D4;--t2:#B89A74;--t3:#7A6550;--accent:#E8853D;--green:#4CAF7A;--border:#4A3D30;--sep:rgba(240,230,212,0.08)}}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--canvas);color:var(--t1);font-family:var(--fs);font-size:15px;line-height:1.7;padding:48px 24px 80px}
+.wrap{max-width:720px;margin:0 auto}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-family:var(--fd);font-style:italic;font-size:30px;font-weight:700;margin-bottom:4px}
+.meta{font-size:13px;color:var(--t3);margin-bottom:8px}
+.lang-switch{font-size:12px;color:var(--t3);margin-bottom:32px}
+h2{font-family:var(--fd);font-style:italic;font-size:20px;font-weight:700;margin:28px 0 10px;padding-top:20px;border-top:1px solid var(--sep)}
+h3{font-size:15px;font-weight:700;margin:16px 0 6px}
+h4{font-size:14px;font-weight:700;margin:14px 0 4px;color:var(--t2)}
+p,li{color:var(--t2);margin-bottom:6px;font-size:14px}
+ul{padding-left:20px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;margin:10px 0 16px}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--sep);font-size:13px}
+th{font-weight:700;color:var(--t1)}td{color:var(--t2)}
+code{font-family:var(--fm);font-size:12px;background:var(--surface);padding:1px 4px;border-radius:3px;border:1px solid var(--border)}
+.back{display:inline-block;margin-bottom:20px;font-size:13px;color:var(--t3)}.back:hover{color:var(--accent)}
+strong{color:var(--t1)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="/" class="back">&larr; AI Gloss Tab</a>
+<h1>Privacy Policy</h1>
+<p class="meta">AI Gloss Tab v0.1.0 &middot; Last updated: 2026-04-18</p>
+<p class="lang-switch">This page shows the English version. <a href="#chinese">中文版见下方</a></p>
+
+<h2>TL;DR</h2>
+<p><strong>AI Gloss Tab does not collect, store, or transmit any user data to any remote server.</strong> All features run entirely in your browser. Your AI conversation content never leaves your device.</p>
+
+<h2>What We Don't Do</h2>
+<ul>
+<li><strong>No collection</strong> of your AI conversation content, prompts, or AI responses</li>
+<li><strong>No collection</strong> of account info, email addresses, IP addresses, or geolocation</li>
+<li><strong>No use</strong> of cookies, LocalStorage, or other web tracking technologies</li>
+<li><strong>No calls</strong> to any remote APIs; no communication with any external server</li>
+<li><strong>No use</strong> of Google Analytics, Sentry, Mixpanel, or any analytics/telemetry tools</li>
+<li><strong>No display</strong> of any advertisements</li>
+<li><strong>No user profiling</strong>, behavioral analysis, or A/B testing</li>
+<li><strong>No selling, renting, or sharing</strong> user data with any third party</li>
+</ul>
+
+<h2>What We Store Locally</h2>
+<p>The extension uses the standard <code>chrome.storage</code> API to save data locally on your device. This data is <strong>not synced, not uploaded</strong>, and exists only within your current browser profile.</p>
+
+<h4>1. User Preferences (<code>chrome.storage.local</code>, persistent)</h4>
+<table><tr><th>Field</th><th>Purpose</th><th>Example</th></tr>
+<tr><td><code>theme</code></td><td>Theme preference</td><td>"system" / "light" / "dark"</td></tr>
+<tr><td><code>lang</code></td><td>UI language</td><td>"zh" / "en"</td></tr>
+<tr><td><code>components.*</code></td><td>Feature toggles (timeline, copy, pet)</td><td>true / false</td></tr>
+<tr><td><code>railPosition.*</code></td><td>Timeline position (side, offset, center)</td><td>"right", 60, 50</td></tr>
+</table>
+
+<h4>2. Gloss Pet Companion State (<code>chrome.storage.local</code>, persistent)</h4>
+<table><tr><th>Field</th><th>Purpose</th></tr>
+<tr><td><code>petId</code>, <code>mood</code>, <code>rerollsLeft</code></td><td>Companion identity and mood</td></tr>
+<tr><td><code>cooldownUntil</code>, <code>hatched</code></td><td>Reroll cooldown, hatching state</td></tr>
+<tr><td><code>position</code>, <code>personalitySeed</code></td><td>Drag position, behavior seed</td></tr>
+</table>
+<p>Contains <strong>no personal information or conversation content</strong>.</p>
+
+<h4>3. Platform Diagnostic (<code>chrome.storage.session</code>, temporary)</h4>
+<p>DOM selector pass/fail status and platform name only. <strong>Cleared when browser closes.</strong></p>
+
+<h4>4. Diagnostic History Summary (<code>chrome.storage.local</code>)</h4>
+<p>Scoring summaries only (date + score + platform). No full diagnostic data stored.</p>
+
+<h2>Data Retention and Deletion</h2>
+<table><tr><th>Scenario</th><th>Behavior</th></tr>
+<tr><td>Uninstall extension</td><td>Chrome automatically deletes all extension data</td></tr>
+<tr><td>Close browser</td><td><code>chrome.storage.session</code> data cleared automatically</td></tr>
+<tr><td>Manual deletion</td><td>Chrome Settings &rarr; Privacy &rarr; Clear browsing data &rarr; Advanced</td></tr>
+</table>
+<p><strong>We retain no copies of deleted data</strong> &mdash; our servers hold nothing.</p>
+
+<h2>Content Script Behavior</h2>
+<p>Runs on 9 AI platforms: ChatGPT, Claude, Gemini, DeepSeek, Kimi, Tongyi Qianwen, Doubao, Tencent Yuanbao, Baidu Yiyan.</p>
+<h3>Does:</h3>
+<ul>
+<li>Reads page DOM (conversation containers only, not sidebar/account/nav)</li>
+<li>Injects UI via Shadow DOM (fully style-isolated)</li>
+<li>Local format conversion + <code>navigator.clipboard</code> on copy button click</li>
+<li>Runs selector diagnostics (results in <code>chrome.storage.session</code>)</li>
+</ul>
+<h3>Does NOT:</h3>
+<ul>
+<li>Transmit conversation content over the network</li>
+<li>Upload DOM structures to any server</li>
+<li>Access other tabs or unrelated pages</li>
+<li>Modify the AI platform's original content</li>
+<li>Read account info or login credentials</li>
+<li>Intercept, modify, or re-send network requests</li>
+</ul>
+
+<h2>Permissions</h2>
+<table><tr><th>Permission</th><th>Purpose</th></tr>
+<tr><td><code>activeTab</code></td><td>Detect current URL to check if on a supported AI platform</td></tr>
+<tr><td><code>storage</code></td><td>Save preferences, companion state, diagnostic reports</td></tr>
+<tr><td><code>host_permissions</code></td><td>Content script injection on 9 AI platform domains</td></tr>
+</table>
+<p>Does <strong>NOT</strong> request: <code>tabs</code>, <code>cookies</code>, <code>history</code>, <code>downloads</code>, <code>webRequest</code>, <code>webNavigation</code>, <code>identity</code>, <code>management</code>, <code>notifications</code>, <code>geolocation</code>.</p>
+
+<h2>Third-Party Resources</h2>
+<p>All bundled locally, <strong>no CDN or remote calls</strong>:</p>
+<table><tr><th>Resource</th><th>License</th></tr>
+<tr><td>Fraunces, Quicksand (fonts)</td><td>SIL OFL 1.1</td></tr>
+<tr><td>KaTeX (formula rendering)</td><td>MIT</td></tr>
+<tr><td>MathJax (formula fallback)</td><td>Apache 2.0</td></tr>
+<tr><td>html2canvas-pro (screenshots)</td><td>MIT</td></tr>
+</table>
+
+<h2>Data Security</h2>
+<ul>
+<li><strong>Zero network transmission</strong>: no connections, no leakage channel</li>
+<li><strong>Shadow DOM isolation</strong>: host page JS cannot read extension state</li>
+<li><strong>Open source</strong>: full code on <a href="https://github.com/Godvvs/gloss-tab">GitHub</a> (MIT), auditable</li>
+<li><strong>Least privilege</strong>: only essential Chrome permissions requested</li>
+</ul>
+
+<h2>Children's Privacy</h2>
+<p>Not directed at children under 13. Collects no data from anyone.</p>
+
+<h2>Your Rights</h2>
+<p>Since we collect no personal data, GDPR/CCPA rights (access, rectification, erasure, portability) are self-fulfilled. You hold the only copy in your browser. View via DevTools, modify in Popup, delete by uninstalling.</p>
+
+<h2>Changes to This Policy</h2>
+<p>Updates will revise the "Last Updated" date and be noted in CHANGELOG.md. Material changes (e.g., introducing network transmission) will be prominently noted in extension update descriptions.</p>
+
+<h2>Governing Law</h2>
+<p>Governed by PRC law. GDPR/CCPA obligations are factually inapplicable as no personal data is collected.</p>
+
+<h2>Contact</h2>
+<p>Email: <a href="mailto:glosstabbug@foxmail.com">glosstabbug@foxmail.com</a><br>
+GitHub: <a href="https://github.com/Godvvs/gloss-tab/issues">Issues</a></p>
+
+<h2 id="chinese" style="margin-top:48px">中文版</h2>
+<p>完整中文版隐私政策请参见扩展源码中的 <a href="https://github.com/Godvvs/gloss-tab">privacy-policy.md</a>。核心要点：</p>
+<ul>
+<li><strong>零数据收集</strong>：不收集对话内容、账号信息、IP 地址</li>
+<li><strong>零网络传输</strong>：不调用任何远程 API，不与外部服务器通信</li>
+<li><strong>纯本地存储</strong>：仅在 <code>chrome.storage.local</code> 保存偏好和伴侣状态</li>
+<li><strong>开源可审计</strong>：MIT 许可证，代码公开</li>
+<li><strong>最小权限</strong>：仅 activeTab + storage + 9 平台 host_permissions</li>
+</ul>
+<p>联系方式：<a href="mailto:glosstabbug@foxmail.com">glosstabbug@foxmail.com</a></p>
+
+</div>
+</body>
+</html>
