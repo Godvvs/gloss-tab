@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=300,initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <title>AI Gloss Tab</title>
+  <script type="module" crossorigin src="/chunks/popup-CYtRkXX2.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/popup-BKsxCWRM.css">
+</head>
+<body>
+
+  <div class="popup-wrapper">
+
+  <div class="popup-header">
+    <div class="popup-brand">
+      <div class="popup-logo">🎓</div>
+      <div class="popup-name">AI Gloss Tab</div>
+    </div>
+    <div class="popup-ver">v0.1.0</div>
+  </div>
+
+  <div class="popup-status inactive" id="status">
+    <div class="status-dot"></div>
+    <div class="status-body">
+      <div class="status-text" id="status-text" data-i18n="statusChecking">检查中...</div>
+      <div class="status-hint" id="status-hint">
+        <span id="status-hint-prefix" data-i18n="selectorFailedHint">可能是平台更新了 DOM · </span><a href="#" id="status-feedback" data-i18n="selectorReport">点此反馈</a>
+      </div>
+    </div>
+    <div class="health-badge" id="health-badge" title="">
+      <svg id="health-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+      <span id="health-label">OK</span>
+    </div>
+  </div>
+
+  <div class="popup-section">
+    <div class="section-label" data-i18n="components">组件</div>
+    <div class="toggle-row" data-toggle="timeline">
+      <div>
+        <div class="toggle-label" data-i18n="componentTimeline">时间线导航</div>
+        <div class="toggle-hint" data-i18n="componentTimelineHint">长对话轮次快速跳转 + 搜索入口</div>
+      </div>
+      <div class="toggle-sw on"></div>
+    </div>
+    <div class="toggle-row" data-toggle="copy">
+      <div>
+        <div class="toggle-label" data-i18n="componentCopy">复制增强</div>
+        <div class="toggle-hint" data-i18n="componentCopyHint">5 类复制目标的图标胶囊</div>
+      </div>
+      <div class="toggle-sw on"></div>
+    </div>
+    <div class="toggle-row" data-toggle="pet">
+      <div>
+        <div class="toggle-label" data-i18n="componentPet">Gloss Pet · 小宠物</div>
+        <div class="toggle-hint" data-i18n="componentPetHint">右下角情绪陪伴 · 无任务无通知</div>
+      </div>
+      <div class="toggle-sw on"></div>
+    </div>
+  </div>
+
+  <div class="popup-section welcome-section hidden" id="welcome-section">
+    <!-- 状态 1 · welcome -->
+    <div class="welcome-stage" data-stage="welcome">
+      <svg class="welcome-egg" viewBox="0 0 16 16" id="welcome-egg" shape-rendering="crispEdges">
+        <rect x="5" y="0" width="6" height="1" fill="var(--pet-cream)" />
+        <rect x="4" y="1" width="8" height="1" fill="var(--pet-cream)" />
+        <rect x="3" y="2" width="10" height="1" fill="var(--pet-cream)" />
+        <rect x="2" y="3" width="12" height="1" fill="var(--pet-cream)" />
+        <rect x="2" y="4" width="12" height="5" fill="var(--pet-cream)" />
+        <rect x="2" y="9" width="12" height="1" fill="var(--pet-cream)" />
+        <rect x="3" y="10" width="10" height="1" fill="var(--pet-cream)" />
+        <rect x="3" y="11" width="10" height="1" fill="var(--pet-cream)" />
+        <rect x="4" y="12" width="8" height="1" fill="var(--pet-cream)" />
+        <rect x="5" y="13" width="6" height="1" fill="var(--pet-cream)" />
+        <rect x="4" y="2" width="2" height="1" fill="var(--pet-warm)" opacity=".55" />
+        <rect x="10" y="3" width="2" height="1" fill="var(--pet-warm)" opacity=".55" />
+        <rect x="3" y="5" width="3" height="1" fill="var(--pet-warm)" opacity=".4" />
+        <rect x="5" y="10" width="3" height="1" fill="var(--pet-warm)" opacity=".45" />
+        <rect x="9" y="12" width="2" height="1" fill="var(--pet-warm)" opacity=".45" />
+      </svg>
+      <div class="welcome-title" data-i18n="welcomeTitle">欢迎来到 AI Gloss Tab</div>
+      <div class="welcome-subtitle" data-i18n="welcomeSubtitle">点击蛋壳,遇见你的第一位同伴</div>
+      <button class="welcome-btn" id="welcome-draw-btn" data-i18n="welcomeDraw">敲开蛋壳</button>
+    </div>
+
+    <!-- 状态 2 · hatching -->
+    <div class="welcome-stage" data-stage="hatching" style="display:none">
+      <div class="hatch-area" id="hatch-area">
+        <svg class="hatch-eggshell" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <g class="eggshell-top">
+            <rect x="5" y="0" width="6" height="1" fill="var(--pet-cream)" />
+            <rect x="4" y="1" width="8" height="1" fill="var(--pet-cream)" />
+            <rect x="3" y="2" width="10" height="1" fill="var(--pet-cream)" />
+            <rect x="2" y="3" width="12" height="1" fill="var(--pet-cream)" />
+            <rect x="2" y="4" width="12" height="2" fill="var(--pet-cream)" />
+            <rect x="4" y="2" width="2" height="1" fill="var(--pet-warm)" opacity=".55" />
+            <rect x="10" y="3" width="2" height="1" fill="var(--pet-warm)" opacity=".55" />
+          </g>
+          <g class="egg-crack">
+            <rect x="2" y="6" width="2" height="1" fill="var(--pet-edge)" />
+            <rect x="4" y="5" width="2" height="1" fill="var(--pet-edge)" />
+            <rect x="6" y="6" width="2" height="1" fill="var(--pet-edge)" />
+            <rect x="8" y="5" width="2" height="1" fill="var(--pet-edge)" />
+            <rect x="10" y="6" width="2" height="1" fill="var(--pet-edge)" />
+            <rect x="12" y="5" width="2" height="1" fill="var(--pet-edge)" />
+          </g>
+          <g class="eggshell-bottom">
+            <rect x="2" y="6" width="12" height="3" fill="var(--pet-cream)" />
+            <rect x="2" y="9" width="12" height="1" fill="var(--pet-cream)" />
+            <rect x="3" y="10" width="10" height="1" fill="var(--pet-cream)" />
+            <rect x="3" y="11" width="10" height="1" fill="var(--pet-cream)" />
+            <rect x="4" y="12" width="8" height="1" fill="var(--pet-cream)" />
+            <rect x="5" y="13" width="6" height="1" fill="var(--pet-cream)" />
+            <rect x="5" y="10" width="3" height="1" fill="var(--pet-warm)" opacity=".45" />
+            <rect x="9" y="12" width="2" height="1" fill="var(--pet-warm)" opacity=".45" />
+          </g>
+        </svg>
+        <svg class="hatch-pet" id="hatch-pet-svg" viewBox="0 0 12 12" shape-rendering="crispEdges" />
+      </div>
+      <div class="hatch-hint" data-i18n="welcomeHatching">正在相遇...</div>
+    </div>
+
+    <!-- 状态 3 · intro -->
+    <div class="welcome-stage" data-stage="intro" style="display:none">
+      <svg class="intro-pet" id="intro-pet-svg" viewBox="0 0 12 12" shape-rendering="crispEdges" />
+      <div class="intro-name" id="intro-name">—</div>
+      <div class="intro-species" id="intro-species">—</div>
+      <div class="intro-stats" id="intro-stats"></div>
+      <div class="intro-hobby" id="intro-hobby"></div>
+      <button class="welcome-btn" id="welcome-finish-btn" data-i18n="welcomeStart">开始使用</button>
+    </div>
+  </div>
+
+  <div class="popup-section" id="companion-section">
+    <div class="section-label" data-i18n="companion">你的同伴</div>
+    <div class="companion-row">
+      <div class="companion-portrait" id="companion-portrait">
+        <!-- SVG injected by main.ts -->
+      </div>
+      <div class="companion-info">
+        <div class="companion-name" id="companion-name">—</div>
+        <div class="companion-meta" id="companion-meta">—</div>
+      </div>
+    </div>
+    <div class="rarity-hint hidden" id="rarity-hint">
+      <div class="rarity-dot"></div>
+      <span data-i18n="rarityHint">一位不常见的朋友来了</span>
+    </div>
+    <button class="reroll-btn" id="reroll-btn">
+      <span id="reroll-label" data-i18n="rerollAvailable">换一只同伴</span>
+    </button>
+    <div class="reroll-hint" id="reroll-hint" data-i18n="rerollHint">3 次用完后进入 7 天冷却</div>
+  </div>
+
+  <!-- Rail Section · 2026-04-17 原型 rail-position-expand · R2 + 左右切换
+       hint-r2: accent 边 + move 图标 + 呼吸 caret（提升折叠态觉察）
+       side seg: 左右切换（默认右） -->
+  <div class="popup-section rail-section hint-r2" id="rail-section">
+    <div class="rail-head" id="rail-head">
+      <div class="rail-head-left">
+        <span class="rail-head-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15" /><polyline points="9 5 12 2 15 5" /><polyline points="15 19 12 22 9 19" /><polyline points="19 9 22 12 19 15" /><line x1="2" x2="22" y1="12" y2="12" /><line x1="12" x2="12" y1="2" y2="22" /></svg>
+        </span>
+        <span class="section-label" data-i18n="railPosition">时间线位置</span>
+        <span class="rail-summary" id="rail-summary">右 · 60 px · 50 %</span>
+      </div>
+      <span class="rail-caret">▸</span>
+    </div>
+    <div class="rail-body">
+      <!-- 左右切换 · 默认 'right' -->
+      <div class="rail-side-row">
+        <span class="rail-side-name" data-i18n="railSide">位置</span>
+        <div class="rail-side-seg" data-seg="side">
+          <button data-value="left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+            <span data-i18n="railSideLeft">左</span>
+          </button>
+          <button data-value="right" class="active">
+            <span data-i18n="railSideRight">右</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="slider-row">
+        <div class="slider-head">
+          <span class="slider-name" data-i18n="railRight">距边框</span>
+          <span class="slider-val" id="val-rail-right">60 px</span>
+        </div>
+        <input type="range" id="slider-rail-right" min="0" max="60" step="1" value="60">
+        <div class="slider-hint" data-i18n="railRightHint">适配宿主页面边栏留白</div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-head">
+          <span class="slider-name" data-i18n="railVCenter">垂直中心</span>
+          <span class="slider-val" id="val-rail-v">50 %</span>
+        </div>
+        <input type="range" id="slider-rail-v" min="0" max="100" step="1" value="50">
+        <div class="slider-hint" data-i18n="railVCenterHint">0 贴顶 · 50 居中 · 100 贴底</div>
+      </div>
+
+      <button class="rail-reset-btn" id="rail-reset" data-i18n="railReset">恢复默认（右 · 60 px · 50 %）</button>
+    </div>
+  </div>
+
+  <!-- Quick Settings · 底部偏好行（语言 + 主题） -->
+  <div class="quick-settings">
+    <div class="qs-group">
+      <span class="qs-label">Lang</span>
+      <div class="header-lang-mini" data-seg="lang">
+        <button data-value="zh" class="active">中</button>
+        <button data-value="en">EN</button>
+      </div>
+    </div>
+    <div class="qs-group">
+      <span class="qs-label">Theme</span>
+      <div class="header-theme-mini" data-seg="theme">
+        <button data-value="system" data-i18n-title="themeSystem" title="跟随系统" aria-label="跟随系统">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2" /><line x1="8" x2="16" y1="21" y2="21" /><line x1="12" x2="12" y1="17" y2="21" /></svg>
+        </button>
+        <button data-value="light" data-i18n-title="themeLight" title="浅色" aria-label="浅色">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></svg>
+        </button>
+        <button data-value="dark" class="active" data-i18n-title="themeDark" title="深色" aria-label="深色">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup-footer">
+    <a href="https://github.com/" target="_blank">GitHub</a>
+    <span class="sep">·</span>
+    <a href="#" data-i18n="footerFeedback">反馈建议</a>
+    <span class="sep">·</span>
+    <a href="#" data-i18n="footerPrivacy">隐私政策</a>
+  </div>
+
+  <!-- ================================================================ -->
+  <!--  平台体检覆盖视图（.popup-wrapper.mode-diag 时显示，默认隐藏）       -->
+  <!--  触发：点击 #health-badge                                          -->
+  <!--  原型：doc/prototypes/20260417-platform-diagnostic.html (方案 A)   -->
+  <!-- ================================================================ -->
+  <div class="diag-view" id="diag-view">
+    <div class="diag-head">
+      <button class="diag-back" id="diag-back" type="button" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+      </button>
+      <div class="diag-title" data-i18n="diagTitle">平台体检</div>
+      <div class="diag-platform-pill" id="diag-platform-pill">—</div>
+    </div>
+
+    <div class="diag-summary" id="diag-summary">
+      <div class="diag-score-ring" id="diag-score-ring">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <circle class="ring-bg" cx="22" cy="22" r="18" />
+          <circle class="ring-fg" id="diag-score-fg" cx="22" cy="22" r="18" stroke-dasharray="0 113.1" />
+        </svg>
+        <div class="score-num" id="diag-score-num">—</div>
+      </div>
+      <div class="diag-summary-text">
+        <div class="diag-summary-main" id="diag-summary-main">—</div>
+        <div class="diag-summary-sub" id="diag-summary-sub">—</div>
+      </div>
+    </div>
+
+    <div class="diag-alerts" id="diag-alerts"></div>
+
+    <div id="diag-probe-groups"></div>
+
+    <div class="diag-actions">
+      <button class="diag-btn primary" id="diag-copy-json" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+        <span id="diag-copy-label" data-i18n="diagCopyJson">复制自检 JSON</span>
+        <span class="btn-hint" data-i18n="diagCopyJsonHint">贴给 Claude</span>
+      </button>
+      <button class="diag-btn" id="diag-rerun" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+        <span data-i18n="diagRerun">重新跑体检</span>
+      </button>
+    </div>
+  </div>
+
+  </div><!-- /popup-wrapper -->
+
+</body>
+</html>
